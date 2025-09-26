@@ -3,6 +3,11 @@ b. git branch - makes a new branch on main
 c. git checkout - moves to branch
 d. git pull - pulls from online repo
 e. git push - pushes to online repo
+	-u <branch> used to push branch to repo
 f. git merge - merges branch commit and main commit
 g. git rebase - moves base
 h. git fetch - fetchs from online repo 
+i. git add - adds new file(made this cheatsheet)
+j. git status - checks status of new files
+k. git log - displays repo update history
+
