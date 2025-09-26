@@ -1,0 +1,8 @@
+a. git commit - updates file
+b. git branch - makes a new branch on main 
+c. git checkout - moves to branch
+d. git pull - pulls from online repo
+e. git push - pushes to online repo
+f. git merge - merges branch commit and main commit
+g. git rebase - moves base
+h. git fetch - fetchs from online repo 
