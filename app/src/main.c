@@ -25,11 +25,35 @@ int main(void) {
   while(1) {
     if(BTN_check_clear_pressed(BTN0)){
       count++;
-      LED_toggle(LED0);
-      printk("%d", count);
-      printk("Button 0 pressed\n");
+      printk("%d ", count);
+      
+    if(count > 15)
+        count = 0;
+      
+    if(count & 0b0001)
+        LED_set(LED0, LED_ON);
+      else
+        LED_set(LED0, LED_OFF);
+      
+      if(count & 0b0010)
+         LED_set(LED1, LED_ON);
+      else
+        LED_set(LED1, LED_OFF);
+      
+      
+      if(count & 0b0100)
+         LED_set(LED2, LED_ON);
+      else
+        LED_set(LED2, LED_OFF);
+      
+      if(count & 0b1000)
+         LED_set(LED3, LED_ON);
+      else
+        LED_set(LED3, LED_OFF);
+      
+      
+
     }
-    k_msleep(SLEEP_MS);
-    }
+  }
 	return 0;
 }
