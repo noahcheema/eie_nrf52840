@@ -28,21 +28,46 @@ int main(void) {
 
   int i = 0, p = 0, j;
   int btn = press();
-  bool locked = false, set = true;
+  bool locked = false, set = true, begin = false;
 
   int space = 3, pass_len = 0;
   int *pass = malloc(space * sizeof(int)); 
   int *entry = NULL;
 
-  printk("Enter Password Using Buttons.\n");
+  printk("Beginning Program.\n");
 
   while(1) {
 
     if(set == true){
-      LED_set(LED3, LED_ON);
 
+      printk("Press Button 4 to set a password.\n");
+
+      int64_t start = k_uptime_get();
+
+      while(k_uptime_get()-start < 3000){
+        btn = press();
+        if(btn == 4){
+          begin = true;
+          set = false;
+          LED_set(LED3, LED_ON);
+          printk("Use buttons 1 to 3 to set a password and use button 4 to submit.\n");
+          break;
+        }
+        k_msleep(SLEEP_MS);
+      }
+      if(begin == false){
+        printk("Restarting program.\n");
+        continue;
+      }
+
+      btn = -1;
+    }
+
+    if(begin == true){
+      btn = press();
+    
       if(btn == 4){
-        set = false;
+        begin = false;
         locked = true;
         LED_set(LED3, LED_OFF);
         
@@ -95,20 +120,22 @@ int main(void) {
       for(j=0; j < pass_len; j++){
         if(pass[j] != entry[j] || i != pass_len){
         printk("Incorrect\n");
+        printk("In waiting state, press any button to lock.\n");
         locked = false;
+        break;
       }
 
-        else{
-            printk("Correct\n");
-            locked = false;
+        if(j == pass_len-1){
+          printk("Correct\n");
+          printk("In waiting state, press any button to lock.\n");
+          locked = false;
+          break;
         }
-        printk("In waiting state, press any button to lock.\n");
-        break;
       }
 
     }
 
-    else if(locked == false && set == false){
+    else if(locked == false && begin == false){
       LED_set(LED0, LED_OFF);
       btn = press();
       if(btn > 0){
