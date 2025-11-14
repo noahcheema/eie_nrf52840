@@ -7,6 +7,8 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/sys/printk.h>
 #include <inttypes.h>
+#include<stdlib.h>
+#include<stdio.h>
 #include "BTN.h"
 #include "LED.h"
 #define SLEEP_MS 50
@@ -24,25 +26,58 @@ int main(void) {
   if(0 > BTN_init()) return 0;
   if(0 > LED_init()) return 0;
 
-  int pass[3] = {1,2,3};
-  int entry[3];
-
-  int i=0, j;
-
+  int i = 0, p = 0, j;
   int btn = press();
-  bool locked = true;
-  
-  printk("Starting\n");
+  bool locked = false, set = true;
 
-  //Entry Mode 
-  
+  int space = 3, pass_len = 0;
+  int *pass = malloc(space * sizeof(int)); 
+  int *entry = NULL;
 
-  
+  printk("Enter Password Using Buttons.\n");
+
   while(1) {
 
+    if(set == true){
+      LED_set(LED3, LED_ON);
+
+      if(btn == 4){
+        set = false;
+        locked = true;
+        LED_set(LED3, LED_OFF);
+        
+        pass_len = p;
+        if(pass_len > 0){
+          int *temp = realloc(pass, pass_len * sizeof(int));
+          if(temp)
+            pass = temp;
+          entry = malloc(pass_len*sizeof(int));
+          }
+        printk("Password has been set.\nEnter Password.\n");
+      }
+
+      else if(btn>0){
+        pass[p] = btn;
+        printk("Entered %d\n", btn);
+        p++;
+
+        if(p == space){
+          space += 1;
+          int *temp = realloc(pass, space * sizeof(int));
+          if(temp)
+            pass = temp;
+        } 
+      }
+
+      btn = press();
+      k_msleep(SLEEP_MS);
+
+    }
 
     if(locked == true){ 
+
     LED_set(LED0, LED_ON);
+    i = 0;
 
       while(btn != 4){
 
@@ -57,33 +92,28 @@ int main(void) {
 
       }
 
-      for(j=0; j < sizeof(pass)/sizeof(pass[0]); j++){
-        if(pass[j] != entry[j]){
+      for(j=0; j < pass_len; j++){
+        if(pass[j] != entry[j] || i != pass_len){
         printk("Incorrect\n");
         locked = false;
+      }
+
+        else{
+            printk("Correct\n");
+            locked = false;
+        }
         printk("In waiting state, press any button to lock.\n");
         break;
       }
 
-        else{
-          if(j == i-1){
-            printk("Correct\n");
-            locked = false;
-            printk("In waiting state, press any button to lock.\n");
-            break;
-
-          }
-        }
-      }
-
     }
 
-    else{
+    else if(locked == false && set == false){
       LED_set(LED0, LED_OFF);
       btn = press();
       if(btn > 0){
 
-        for(int c = 0; c< sizeof(entry)/size(entry[0]); c++) 
+        for(int c = 0; c < pass_len; c++) 
           entry[c] = 0;
 
         i = 0;
@@ -98,4 +128,5 @@ int main(void) {
   return 0;
 
 }
+
 
