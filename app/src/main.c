@@ -6,11 +6,15 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
+#include <zephyr/drivers/gpio.h>
+#include <zephyr/device.h>
 
 #include "BTN.h"
 #include "LED.h"
+#include "my_state_machine.h"
 
-#define SLEEP_TIME_MS 1
+
+#define SLEEP_MS 1
 
 int main(void) {
 
@@ -21,18 +25,17 @@ int main(void) {
     return 0;
   }
 
-
-  uint8_t current_duty_cycle = 0;
-
-  LED_pwm(LED0, current_duty_cycle);
+  state_machine_init();
 
   while(1) {
-    if(BTN_check_clear_pressed(BTN0)){
-      current_duty_cycle = (current_duty_cycle >= 100) ? 0 : (current_duty_cycle + 10);
-      printk("Setting LED0 to %d%% brightness.\n", current_duty_cycle);
-      LED_pwm(LED0, current_duty_cycle);
+
+    int ret = state_machine_run();
+    if(0 > ret){
+      return 0;
     }
-    k_msleep(SLEEP_TIME_MS);
+
+    k_msleep(SLEEP_MS);
+
   }
-	return 0;
+  return 0;
 }
