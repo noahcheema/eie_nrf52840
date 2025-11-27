@@ -111,22 +111,36 @@ static ssize_t ble_custom_service_write(struct bt_conn* conn, const struct bt_ga
   }
   printk("\n");
 
-  if(value[4] == 'O' && value[5]=='N'){
-    printk("Turning LED0 on.\n");
-    LED_set(LED0, LED_ON);
+  if(strcmp(value, "LED ON")== 0){
+    printk("Turning LED1 on.\n");
+    LED_set(LED1, LED_ON);
+    memset(ble_custom_characteristic_user_data, 0, sizeof(ble_custom_characteristic_user_data));
+    strcpy(ble_custom_characteristic_user_data, "LED ON");
   }
   
-  if(value[4] == 'O' && value[5]=='F' && value[6] == 'F'){
-    printk("Turning LED0 off.\n");
-    //LED_set(LED0, LED_OFF);
+  if(strcmp(value, "LED OFF")==0){
+    printk("Turning LED1 off.\n");
+    LED_set(LED1, LED_OFF);
+    memset(ble_custom_characteristic_user_data, 0, sizeof(ble_custom_characteristic_user_data));
+    strcpy(ble_custom_characteristic_user_data, "LED OFF");
   }
   return len;
 }
 
 static void ble_custom_service_notify() {
   static uint32_t counter = 0;
+  static bool adding = true;
   bt_gatt_notify(NULL, &ble_custom_service.attrs[2], &counter, sizeof(counter));
-  counter++;
+  
+  if(BTN_check_clear_pressed(BTN1) == 1){
+    adding = !adding;
+    printk("Button pressed, counting direction reversed.\n");
+  }
+
+  if(adding == true)
+    counter++;
+  else
+    counter--;
 }
 
 /* MAIN ----------------------------------------------------------------------------------------- */
@@ -148,6 +162,9 @@ int main(void) {
     return 0;
   }
 
+    LED_init(LED1);
+    BTN_init(BTN1);
+  
   while (1) {
     k_sleep(K_MSEC(1000));
     ble_custom_service_notify();
